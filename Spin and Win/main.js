@@ -11,8 +11,8 @@ const prizes = [
 ];
 
 const colors = [
-  "#ff7043","#ff8a65","#ffcc80","#ffb74d",
-  "#ff8a00","#ff5722","#ffab91","#ff6f00"
+  "#ff7043", "#ff8a65", "#ffcc80", "#ffb74d",
+  "#ff8a00", "#ff5722", "#ffab91", "#ff6f00"
 ];
 
 /* -------------------------
@@ -51,11 +51,12 @@ function buildWheel() {
 
   // Calculate correct label placement
   const radius = Math.min(wheel.clientWidth, wheel.clientHeight) / 2;
-  const labelRadius = radius * 0.65;
+  const labelRadius = radius * 0.8;
 
   for (let i = 0; i < n; i++) {
     const centerAngle = i * degPer + degPer / 2;
-    const rad = (centerAngle - 90) * Math.PI / 180;
+    const correctedAngle = centerAngle - 90; 
+    const rad = correctedAngle * Math.PI / 180;
 
     const x = radius + labelRadius * Math.cos(rad);
     const y = radius + labelRadius * Math.sin(rad);
@@ -63,10 +64,11 @@ function buildWheel() {
     const label = document.createElement('div');
     label.className = 'label';
     label.textContent = prizes[i];
+    const rotationAngle = centerAngle;
     label.style.position = 'absolute';
     label.style.left = `${x}px`;
     label.style.top = `${y}px`;
-    label.style.transform = 'translate(-50%, -50%)';
+    label.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
     label.style.fontSize = '15px';
     label.style.fontWeight = '600';
     label.style.color = '#fff';
@@ -117,23 +119,23 @@ function spawnConfetti() {
       h: Math.random() * 6 + 4,
       speed: Math.random() * 3 + 2,
       rot: Math.random() * 360,
-      color: `hsl(${Math.random()*360}, 90%, 60%)`,
+      color: `hsl(${Math.random() * 360}, 90%, 60%)`,
       rotSpeed: (Math.random() - 0.5) * 6
     });
   }
   requestAnimationFrame(renderConfetti);
-  setTimeout(()=> confettiPieces = [], 4200);
+  setTimeout(() => confettiPieces = [], 4200);
 }
 
 function renderConfetti() {
   if (!ctx) return;
-  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
   confettiPieces.forEach(p => {
     ctx.save();
     ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot * Math.PI/180);
+    ctx.rotate(p.rot * Math.PI / 180);
     ctx.fillStyle = p.color;
-    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
     ctx.restore();
     p.y += p.speed;
     p.rot += p.rotSpeed;
@@ -166,22 +168,20 @@ function spinOnce() {
   wheel.style.transform = `rotate(${finalRotation}deg)`;
 
   if (spinSound) {
-    try { spinSound.currentTime = 0; spinSound.play(); } catch (e) {}
+    try { spinSound.currentTime = 0; spinSound.play(); } catch (e) { }
   }
 
   setTimeout(() => {
     if (winSound) {
-      try { winSound.currentTime = 0; winSound.play(); } catch (e) {}
+      try { winSound.currentTime = 0; winSound.play(); } catch (e) { }
     }
 
     const normalized = finalRotation % 360;
 
     // ✅ FIXED CALCULATION BELOW
-    // Adjust by +90° because our wheel gradient starts from -90° (top).
-    const adjustedAngle = (normalized + 90) % 360;
-    const winningIndex = Math.floor(adjustedAngle / degPer) % n;
-
-    const reward = prizes[n - 1 - winningIndex]; // reverse index to match clockwise rotation
+    const effectiveAngle = (360 - normalized) % 360;
+    const winningIndex = Math.floor(effectiveAngle / degPer);
+    const reward = prizes[winningIndex];
 
     wheel.style.transition = "none";
     wheel.style.transform = `rotate(${normalized}deg)`;
@@ -207,8 +207,8 @@ function spinOnce() {
    ------------------------- */
 buildWheel();
 spinBtn.addEventListener('click', spinOnce);
-spinAgainBtn.addEventListener('click', ()=>{
+spinAgainBtn.addEventListener('click', () => {
   popup.classList.remove('show');
   message.textContent = 'Good luck — spin again!';
 });
-try { spinSound.load(); winSound.load(); } catch(e){}
+try { spinSound.load(); winSound.load(); } catch (e) { }

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
     --size: 360px;
     --accent1: #ff8a00;
@@ -7,7 +9,10 @@
 }
 
 * {
-    box-sizing: border-box
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Noto Sans", sans-serif;
 }
 
 /* body{
@@ -35,7 +40,7 @@ body {
 }
 
 /* Diwali glow border animation */
-body::before {
+/* body::before {
     content: "";
     position: absolute;
     width: 100%;
@@ -57,11 +62,12 @@ body::before {
     50% {
         opacity: 0.3;
     }
-}
+} */
 
 h1 {
     font-size: 26px;
-    margin-bottom: 18px;
+    font-weight: 800;
+    margin-bottom: 65px;
     text-align: center;
     text-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
     letter-spacing: 0.4px;
@@ -125,14 +131,14 @@ h1 {
 /* pointer at top */
 .pointer {
     position: absolute;
-    top: calc(-18px - 10px);
+    top: calc(-8px - 3px);
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 18px solid transparent;
     border-right: 18px solid transparent;
-    border-bottom: 28px solid #fff;
+    border-top: 28px solid #fff;
     filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
     z-index: 2;
 }
@@ -184,8 +190,8 @@ button#spinBtn {
     background: linear-gradient(90deg, #ff8a00, #e53935);
     border: none;
     color: #fff;
-    padding: 14px 36px;
-    border-radius: 40px;
+    padding: 14px 25px;
+    border-radius: 20px;
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
@@ -205,6 +211,7 @@ button#spinBtn:active {
 
 .message {
     color: #ffd54f;
+    color: whitesmoke;
     font-weight: 600;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     font-size: 16px;

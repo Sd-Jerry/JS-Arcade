@@ -2,14 +2,12 @@
    CONFIG: prizes + colors
    ------------------------- */
 const prizes = [
-  "₹50 Cashback",
-  "₹100 Cashback",
+  "₹200",
+  "₹400",
+  "₹600",
+  "₹800",
+  "₹1000",
   "Try Again",
-  "₹25 Cashback",
-  "₹10 Cashback",
-  "Free Wash",
-  "₹75 Cashback",
-  "10% Off"
 ];
 
 const colors = [
@@ -32,76 +30,86 @@ const winSound = document.getElementById('winSound');
 const ctx = confettiCanvas.getContext && confettiCanvas.getContext('2d');
 
 /* -------------------------
-   Build wheel (conic-gradient + radial labels)
+   Build wheel (fixed labels)
    ------------------------- */
 function buildWheel() {
   const n = prizes.length;
   const degPer = 360 / n;
-  // build gradient string starting from top
+
+  // Build conic gradient
   let parts = [];
   let start = 0;
-  for (let i = 0; i < n; i++){
+  for (let i = 0; i < n; i++) {
     const end = start + degPer;
     parts.push(`${colors[i % colors.length]} ${start}deg ${end}deg`);
     start = end;
   }
-  const gradient = `conic-gradient(from -90deg, ${parts.join(', ')})`;
-  wheel.style.background = gradient;
+  wheel.style.background = `conic-gradient(from -90deg, ${parts.join(', ')})`;
 
-  // remove old labels
-  document.querySelectorAll('.label').forEach(el => el.remove());
+  // Clear old labels
+  wheel.querySelectorAll('.label').forEach(el => el.remove());
 
-  // create radial labels
+  // Calculate correct label placement
   const radius = Math.min(wheel.clientWidth, wheel.clientHeight) / 2;
-  const labelRadius = radius - 80; // distance from center
-  for (let i = 0; i < n; i++){
-    const centerAngle = i * degPer + degPer / 2; // degrees clockwise from top
+  const labelRadius = radius * 0.65;
+
+  for (let i = 0; i < n; i++) {
+    const centerAngle = i * degPer + degPer / 2;
+    const rad = (centerAngle - 90) * Math.PI / 180;
+
+    const x = radius + labelRadius * Math.cos(rad);
+    const y = radius + labelRadius * Math.sin(rad);
+
     const label = document.createElement('div');
     label.className = 'label';
     label.textContent = prizes[i];
-    // position using CSS transform: rotate(centerAngle) translateY(-labelRadius) rotate(-centerAngle)
-    // Note: using translateY(-labelRadius) because transform rotates clockwise
-    label.style.transform = `rotate(${centerAngle}deg) translateY(-${labelRadius}px) rotate(${-centerAngle}deg)`;
-    // small styling to ensure visibility for long text
+    label.style.position = 'absolute';
+    label.style.left = `${x}px`;
+    label.style.top = `${y}px`;
+    label.style.transform = 'translate(-50%, -50%)';
     label.style.fontSize = '15px';
-    label.style.padding = '2px 6px';
-    label.style.borderRadius = '8px';
-    label.style.background = 'rgba(0,0,0,0.06)';
-    label.style.boxShadow = '0 2px 8px rgba(0,0,0,0.35)';
+    label.style.fontWeight = '600';
     label.style.color = '#fff';
-    label.style.left = '50%';
-    label.style.top = '50%';
+    label.style.textShadow = '0 2px 6px rgba(0,0,0,0.6)';
+    label.style.padding = '4px 8px';
+    label.style.borderRadius = '8px';
+    label.style.background = 'rgba(0,0,0,0.15)';
+    label.style.boxShadow = '0 3px 10px rgba(0,0,0,0.35)';
+    label.style.whiteSpace = 'nowrap';
+    label.style.pointerEvents = 'none';
     wheel.appendChild(label);
   }
 }
 
- // Add sparkles
-    for (let i = 0; i < 25; i++) {
-      const spark = document.createElement("div");
-      spark.classList.add("spark");
-      spark.style.top = Math.random() * 100 + "%";
-      spark.style.left = Math.random() * 100 + "%";
-      spark.style.animationDelay = Math.random() * 2 + "s";
-      document.body.appendChild(spark);
-    }
+/* -------------------------
+   Sparkle lights
+   ------------------------- */
+for (let i = 0; i < 25; i++) {
+  const spark = document.createElement("div");
+  spark.classList.add("spark");
+  spark.style.top = Math.random() * 100 + "%";
+  spark.style.left = Math.random() * 100 + "%";
+  spark.style.animationDelay = Math.random() * 2 + "s";
+  document.body.appendChild(spark);
+}
 
 /* -------------------------
    Confetti helpers
    ------------------------- */
 let confettiPieces = [];
-function resizeCanvas(){
-  if(!ctx) return;
+function resizeCanvas() {
+  if (!ctx) return;
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-function spawnConfetti(){
-  if(!ctx) return;
+function spawnConfetti() {
+  if (!ctx) return;
   confettiPieces = [];
   const count = 100;
-  for (let i = 0; i < count; i++){
+  for (let i = 0; i < count; i++) {
     confettiPieces.push({
       x: Math.random() * confettiCanvas.width,
       y: Math.random() * confettiCanvas.height - confettiCanvas.height,
@@ -114,14 +122,13 @@ function spawnConfetti(){
     });
   }
   requestAnimationFrame(renderConfetti);
-  // clear after ~4s
   setTimeout(()=> confettiPieces = [], 4200);
 }
 
-function renderConfetti(){
-  if(!ctx) return;
+function renderConfetti() {
+  if (!ctx) return;
   ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
-  confettiPieces.forEach(p=>{
+  confettiPieces.forEach(p => {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot * Math.PI/180);
@@ -136,12 +143,12 @@ function renderConfetti(){
 }
 
 /* -------------------------
-   Spin logic (robust)
+   Spin logic (fixed)
    ------------------------- */
-let currentRotation = 0; // internal rotation in degrees (keeps small values)
+let currentRotation = 0;
 let isSpinning = false;
 
-function spinOnce(){
+function spinOnce() {
   if (isSpinning) return;
   isSpinning = true;
   spinBtn.disabled = true;
@@ -150,73 +157,58 @@ function spinOnce(){
   const n = prizes.length;
   const degPer = 360 / n;
 
-  // choose random index
-  const chosen = Math.floor(Math.random() * n);
+  const spinRounds = Math.floor(Math.random() * 3) + 5;
+  const randomOffset = Math.random() * 360;
+  const finalRotation = currentRotation + spinRounds * 360 + randomOffset;
+  const duration = 4.6;
 
-  // number of full rotations (visual)
-  const spinRounds = Math.floor(Math.random() * 3) + 5; // 5..7
-
-  // center angle of that segment measured clockwise from top (because gradient 'from -90deg')
-  const targetCenter = chosen * degPer + degPer / 2; // 0..360
-
-  // compute a forward delta so finalRotation > currentRotation and minimal extra rotation beyond full rounds
-  const currentNorm = currentRotation % 360;
-  const deltaToTarget = ((targetCenter - currentNorm) + 360) % 360; // 0..359
-  const totalExtra = spinRounds * 360 + deltaToTarget; // ensures forward spin
-
-  const finalRotation = currentRotation + totalExtra;
-  const duration = 4.6; // seconds
-  wheel.style.transition = `transform ${duration}s cubic-bezier(0.25,0.1,0.25,1)`;
+  wheel.style.transition = `transform ${duration}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
   wheel.style.transform = `rotate(${finalRotation}deg)`;
 
-  // play spin sound
-  if(spinSound){
-    try{ spinSound.currentTime = 0; spinSound.play(); }catch(e){}
+  if (spinSound) {
+    try { spinSound.currentTime = 0; spinSound.play(); } catch (e) {}
   }
 
-  // when animation finishes:
-  setTimeout(()=>{
-    // stop sound and play win sound
-    if(winSound){
-      try{ winSound.currentTime = 0; winSound.play(); }catch(e){}
+  setTimeout(() => {
+    if (winSound) {
+      try { winSound.currentTime = 0; winSound.play(); } catch (e) {}
     }
 
-    // compute normalized rotation and update currentRotation to a small value
     const normalized = finalRotation % 360;
 
-    // Ensure we snap to normalized WITHOUT visual jump: set transition none then set to normalized,
-    // but because normalized === finalRotation % 360 the visible state won't visually change.
-    wheel.style.transition = 'none';
+    // ✅ FIXED CALCULATION BELOW
+    // Adjust by +90° because our wheel gradient starts from -90° (top).
+    const adjustedAngle = (normalized + 90) % 360;
+    const winningIndex = Math.floor(adjustedAngle / degPer) % n;
+
+    const reward = prizes[n - 1 - winningIndex]; // reverse index to match clockwise rotation
+
+    wheel.style.transition = "none";
     wheel.style.transform = `rotate(${normalized}deg)`;
-    // force reflow to ensure transition reset takes effect
     void wheel.offsetWidth;
 
     currentRotation = normalized;
     isSpinning = false;
     spinBtn.disabled = false;
 
-    // Determine reward and show popup or message
-    const rewardIndex = chosen;
-    const reward = prizes[rewardIndex];
-
-    if (reward.toLowerCase().includes("try again")){
+    if (reward.toLowerCase().includes("try again")) {
       message.textContent = "😅 Try Again Next Time!";
-      // no popup or confetti
     } else {
       message.textContent = `🎉 You won: ${reward}!`;
-      popupBody.textContent = reward.toLowerCase().includes('cashback') ? `You won ${reward}!` : `You won ${reward}!`;
-      popup.classList.add('show');
+      popupBody.textContent = `Congratulations! You won ${reward}!`;
+      popup.classList.add("show");
       spawnConfetti();
     }
   }, Math.round(duration * 1000) + 60);
 }
 
 /* -------------------------
-   event wiring
+   Event wiring
    ------------------------- */
 buildWheel();
 spinBtn.addEventListener('click', spinOnce);
-spinAgainBtn.addEventListener('click', ()=> { popup.classList.remove('show'); message.textContent = 'Good luck — spin again!'; });
-
-/* preload small audio to avoid first-play delay on some browsers */
+spinAgainBtn.addEventListener('click', ()=>{
+  popup.classList.remove('show');
+  message.textContent = 'Good luck — spin again!';
+});
 try { spinSound.load(); winSound.load(); } catch(e){}

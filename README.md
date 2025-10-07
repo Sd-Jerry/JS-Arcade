@@ -1,4 +1,4 @@
-#JS-Arcade      
+# Welcome-to-JS-Arcade      
 A Front-End Gaming Collection      
 🕹️ About the Projects      
 This repository serves as a Front-End Arcade, showcasing various interactive web games built using modern web technologies. It's a playground for experimenting with game mechanics, performance optimization, and responsive design, all within the browser environment.      

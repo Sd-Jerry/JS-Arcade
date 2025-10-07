@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samrat Tyre Festive Spinner🎡</title>
+    <link rel="stylesheet" href="../Css/stylesheet.css">
+</head>
+
+<body>
+    <h1>🎉 Samrat Tyre Festive Cashback Spinner 🪔</h1>
+
+    <div class="stage">
+        <div class="glow-ring" aria-hidden="true"></div>
+
+        <div class="wheel-wrap">
+            <div class="pointer" aria-hidden="true"></div>
+
+            <!-- The wheel element: background will be a conic-gradient built from JS -->
+            <div id="wheel" role="img" aria-label="Prize wheel"></div>
+
+            <div class="center">SPIN</div>
+        </div>
+
+        <div class="controls">
+            <button id="spinBtn">🎁 Spin & Win</button>
+            <div class="message" id="message">Good luck — try your luck this festive season!</div>
+        </div>
+    </div>
+
+    <!-- popup -->
+    <div class="popup" id="popup" role="dialog" aria-hidden="true">
+        <div class="popup-card">
+            <h2 id="popup-title">🎊 Congratulations!</h2>
+            <p id="popup-body">You won ₹50 Cashback!</p>
+            <div style="display:flex;gap:12px;justify-content:center">
+                <button id="spinAgainBtn">🔁 Spin Again</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti"></canvas>
+
+    <!-- sounds -->
+    <audio id="spinSound" preload="auto"
+        src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.wav"></audio>
+    <audio id="winSound" preload="auto"
+        src="https://cdn.pixabay.com/download/audio/2022/10/12/audio_9d27d8a14d.mp3?filename=success-fanfare-trumpets-6185.mp3"></audio>
+
+    <script src="../Js/main.js"></script>
+</body>
+
+</html>

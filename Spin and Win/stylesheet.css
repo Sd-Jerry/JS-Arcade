@@ -1,314 +1,236 @@
-@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-
-:root {
-    --size: 360px;
-    --accent1: #ff8a00;
-    --accent2: #e53935;
-    --accent3: #ffcc00;
-    --bg1: #120b0b;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Noto Sans", sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
-
-/* body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-    background: linear-gradient(135deg, #ff9966, #ff5e62);
-  font-family: "Poppins", system-ui, sans-serif;
-  color:#fff;
-  padding:40px 20px;
-} */
 
 body {
-    background: radial-gradient(circle at center, #ffcc70, #ff6b6b);
-    height: 100vh;
-    overflow: hidden;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    position: relative;
+    align-items: center;
+    min-height: 100vh;
+    background: #222;
+    overflow: hidden;
+    flex-direction: column;
 }
 
-/* Diwali glow border animation */
-/* body::before {
-    content: "";
+/* Added a small counter display */
+.spin-info {
+    position: absolute;
+    top: 20px;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    z-index: 50;
+}
+
+.spin-info p {
+    margin: 0;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin-top: 50px;
+}
+
+.wheel {
     position: absolute;
     width: 100%;
     height: 100%;
-    top: 0;
-    left: 0;
-    background: repeating-radial-gradient(circle, #ffecb3, #ff8a00 10%, transparent 15%);
-    opacity: 0.15;
-    animation: pulse 4s infinite ease-in-out;
+    background: #333;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 5px #333, 0 0 0 15px #fff, 0 0 0 18px #111;
+    /* Match JS timeout duration of 5s */
+    transition: transform 5s cubic-bezier(0.1, 0.7, 0.4, 1);
+    margin-bottom: 100px;
 }
 
-@keyframes pulse {
+.wheel .number {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    background: var(--clr);
+    transform-origin: bottom right;
+    transform: rotate(calc(45deg * var(--i)));
+    /* Clip path for 8 segments */
+    clip-path: polygon(0% 0%, 56% 0, 100% 100%, 0% 56%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wheel .number span {
+    position: relative;
+    transform: rotate(45deg);
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.centerCircle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: #fff;
+    border-radius: 50%;
+    border: 4px solid #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.centerCircle .caption {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+}
+
+.centerCircle .arrow {
+    position: absolute;
+    top: -28px;
+    width: 20px;
+    height: 30px;
+    background: #fff;
+    clip-path: polygon(50% 0%, 15% 100%, 85% 100%);
+    border: 2px solid #111;
+    transition: transform 0.2s ease;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.arrow.bounce {
+    animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
 
     0%,
     100% {
-        opacity: 0.1;
+        transform: translateY(0);
     }
 
     50% {
-        opacity: 0.3;
-    }
-} */
-
-h1 {
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 65px;
-    text-align: center;
-    text-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-    letter-spacing: 0.4px;
-}
-
-.stage {
-    width: var(--size);
-    max-width: 92vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-    position: relative;
-}
-
-/* glow ring behind wheel */
-.glow-ring {
-    position: absolute;
-    width: calc(var(--size) + 36px);
-    height: calc(var(--size) + 36px);
-    border-radius: 50%;
-    filter: blur(24px);
-    background: conic-gradient(from 0deg, rgba(255, 204, 0, 0.95), rgba(229, 57, 53, 0.75), rgba(255, 138, 0, 0.85), rgba(255, 204, 0, 0.95));
-    opacity: 0.95;
-    pointer-events: none;
-    z-index: 0;
-    animation: glowRot 6s linear infinite;
-}
-
-@keyframes glowRot {
-    to {
-        transform: rotate(360deg)
+        transform: translateY(-8px);
     }
 }
 
-/* wheel */
-.wheel-wrap {
-    position: relative;
-    width: var(--size);
-    height: var(--size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-}
-
-#wheel {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 10px solid rgba(255, 204, 0, 0.95);
-    box-shadow:
-        0 0 40px rgba(255, 138, 0, 0.25),
-        inset 0 6px 20px rgba(0, 0, 0, 0.25);
-    position: relative;
-    overflow: visible;
-    transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
-    background: #fff8e6;
-}
-
-/* pointer at top */
-.pointer {
+.spinBtn {
     position: absolute;
-    top: calc(-8px - 3px);
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-    border-top: 28px solid #fff;
-    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
-    z-index: 2;
-}
-
-/* center badge */
-.center {
-    position: absolute;
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 25% 25%, #fff9e6, #ffd864);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: var(--accent2);
-    box-shadow: 0 6px 20px rgba(229, 57, 53, 0.18), 0 0 28px rgba(255, 204, 0, 0.2);
-    z-index: 3;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/* labels generated by JS (positioned radially) */
-.label {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform-origin: 50% 50%;
+    padding: 12px 32px;
+    font-size: 18px;
     font-weight: 700;
     color: #fff;
-    font-size: 14px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-/* spin button and message */
-.controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    z-index: 3;
-    margin-top: 6px;
-}
-
-button#spinBtn {
-    background: linear-gradient(90deg, #ff8a00, #e53935);
+    background: #ff4b2b;
     border: none;
-    color: #fff;
-    padding: 14px 25px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 16px;
+    border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(229, 57, 53, 0.18), 0 0 18px rgba(255, 204, 0, 0.12);
-    transition: transform .12s ease;
+    letter-spacing: 1px;
+    transition: 0.3s;
+    box-shadow: 0 4px #c83d22;
 }
 
-button#spinBtn[disabled] {
-    opacity: .6;
+.spinBtn:hover {
+    background: #ff6f56;
+}
+
+.spinBtn:active {
+    box-shadow: 0 1px #c83d22;
+    transform: translateX(-50%) translateY(3px);
+}
+
+.spinBtn:disabled {
+    background: #999;
+    box-shadow: 0 4px #777;
     cursor: not-allowed;
-    transform: none
 }
 
-button#spinBtn:active {
-    transform: scale(.99)
-}
-
-.message {
-    color: #ffd54f;
-    color: whitesmoke;
-    font-weight: 600;
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-    font-size: 16px;
-}
-
-/* popup */
-.popup {
+/* 🔹 Dim Overlay Background */
+.overlay {
     position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    visibility: hidden;
     opacity: 0;
-    transition: .22s ease;
-    z-index: 999;
+    visibility: hidden;
+    transition: opacity 0.4s ease;
+    z-index: 90;
 }
 
-.popup.show {
-    visibility: visible;
+.overlay.show {
     opacity: 1;
+    visibility: visible;
 }
 
-.popup-card {
-    background: linear-gradient(135deg, #ff7f50, #ffb74d);
-    padding: 24px 28px;
-    border-radius: 16px;
-    text-align: center;
-    color: #000;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    width: min(420px, 92vw);
-}
-
-.popup-card h2 {
-    margin: 0 0 8px;
-    font-size: 20px
-}
-
-.popup-card p {
-    margin: 0 0 18px;
-    font-size: 18px
-}
-
-.popup-card button {
-    padding: 10px 18px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    background: #fff;
-    color: #e64a19
-}
-
-/* confetti canvas */
-#confetti {
+/* Toast Popup */
+.toast {
     position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1000;
-}
-
-/* Sparkles animation */
-.spark {
-    position: absolute;
-    width: 6px;
-    height: 6px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
     background: #fff;
-    border-radius: 50%;
-    animation: sparkle 2s infinite;
-    opacity: 0.8;
+    color: #333;
+    border-radius: 16px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 100;
 }
 
-@keyframes sparkle {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(0.5);
-        opacity: 0.3;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.toast.show {
+    transform: translate(-50%, -50%) scale(1);
 }
 
-@media (max-width:500px) {
-    :root {
-        --size: 300px;
-    }
+.toast-content h2 {
+    margin-bottom: 15px;
+    font-size: 28px;
+    color: #111;
+}
 
-    .center {
-        width: 80px;
-        height: 80px
-    }
+.toast-content button {
+    background: #ff4b2b;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.toast-content button:hover {
+    background: #ff6f56;
+}
+
+/* Confetti Canvas */
+#confettiCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }

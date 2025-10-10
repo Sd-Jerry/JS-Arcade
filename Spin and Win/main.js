@@ -23,11 +23,11 @@ spinBtn.onclick = function () {
   // Select prize logic
   const prize = getPrize();
 
-  // Show popup after spin ends (9.2s)
+  // Show popup after spin ends (9s)
   setTimeout(() => {
     popup.style.display = "flex";
     initScratchCard(prize);
-  }, 9200);
+  }, 8500);
 };
 
 // --- SCRATCH CARD INITIALIZATION ---
@@ -89,6 +89,10 @@ function initScratchCard(prize) {
 function showCongratsPopup(prize) {
   popup.style.display = "none";
 
+  if (document.querySelector(".congrats-popup")) {
+    document.querySelector(".congrats-popup").remove();
+  }
+
   // Create popup wrapper
   congratsPopup = document.createElement("div");
   congratsPopup.className = "congrats-popup";
@@ -102,13 +106,20 @@ function showCongratsPopup(prize) {
   `;
   document.body.appendChild(congratsPopup);
 
+  // Ensure popup covers full screen on mobile
+  congratsPopup.style.width = '100%';
+  congratsPopup.style.height = '100%';
+  congratsPopup.style.zIndex = 99999;
+
   startConfetti(); // Trigger confetti animation
 
-  document.getElementById("popupSpinAgain").onclick = () => {
+  // Handle Spin Again click
+  const spinAgainBtn = document.getElementById("popupSpinAgain");
+  spinAgainBtn.addEventListener("click", () => {
     stopConfetti();
     congratsPopup.remove();
     spinBtn.style.pointerEvents = "auto";
-  };
+  });
 }
 
 // --- CONFETTI ANIMATION ---

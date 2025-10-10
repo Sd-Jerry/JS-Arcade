@@ -2,47 +2,47 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spin & Win</title>
-    <link rel="stylesheet" type="text/css" href="./stylesheet.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spin | Scratch | Win</title>
+    <!-- -- FONT AWESOME LINK -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <!-- -- CSS STYLESHEET LINK -->
+    <link rel="stylesheet" href="./stylesheet.css" />
 </head>
 
 <body>
-    <div class="spin-info">
-        <p>Spin: <span id="spinCounter">0</span> | Last Prize: <span id="cycleStepCounter">Ready</span></p>
-    </div>
-
     <div class="container">
+        <div class="spinBtn">SPIN</div>
         <div class="wheel">
-            <div class="number" style="--i:1;--clr:#db7093;"><span>₹200</span></div>
-            <div class="number" style="--i:2;--clr:#4169e1;"><span>₹300</span></div>
-            <div class="number" style="--i:3;--clr:#20b2aa;"><span>₹400</span></div>
-            <div class="number" style="--i:4;--clr:#ff340f;"><span>₹500</span></div>
-            <div class="number" style="--i:5;--clr:#d63e92;"><span>₹600</span></div>
-            <div class="number" style="--i:6;--clr:#daa520;"><span>₹800</span></div>
-            <div class="number" style="--i:7;--clr:#ff7f50;"><span>₹1000</span></div>
-            <div class="number" style="--i:8;--clr:#3cb371;"><span>Try Again</span></div>
-        </div>
-
-        <div class="centerCircle">
-            <div class="caption">Cashback <br> Offers</div>
-            <div class="arrow"></div>
-        </div>
-
-        <button class="spinBtn">SPIN</button>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <div class="toast" id="toast">
-        <div class="toast-content">
-            <h2 id="prizeText"></h2>
-            <button id="spinAgain">Spin Again</button>
+            <div class="number" style="--i:1;--clr:#db7093;"><span><i class="fa-solid fa-gift"></i></span></div>
+            <div class="number" style="--i:2;--clr:#4169e1;"><span><i class="fa-solid fa-gifts"></i></span></div>
+            <div class="number" style="--i:3;--clr:#20b2aa;"><span><i class="fa-solid fa-gift"></i></span></div>
+            <div class="number" style="--i:4;--clr:#ff340f;"><span><i class="fa-solid fa-gifts"></i></span></div>
+            <div class="number" style="--i:5;--clr:#d63e92;"><span><i class="fa-solid fa-gift"></i></span></div>
+            <div class="number" style="--i:6;--clr:#daa520;"><span><i class="fa-solid fa-gifts"></i></span></div>
+            <div class="number" style="--i:7;--clr:#ff7f50;"><span><i class="fa-solid fa-gift"></i></span></div>
+            <div class="number" style="--i:8;--clr:#3cb371;"><span><i class="fa-solid fa-gifts"></i></span></div>
         </div>
     </div>
 
-    <canvas id="confettiCanvas"></canvas>
+    <!-- Scratch Card Popup -->
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2>Scratch to Reveal 🎁</h2>
+            <canvas id="scratchCard"></canvas>
+        </div>
+    </div>
+
+    <!-- Toast Message -->
+    <div class="toast" id="toast">🎉 Congratulations! You won ₹200 Cashback!</div>
+
+    <!-- Spin Again Button -->
+    <button class="spinAgainBtn" id="spinAgainBtn">SPIN AGAIN</button>
+
+    <!-- Spin Sounds -->
+    <!-- <audio id="spinSound" src="./Spin Sound.wav" preload="auto"></audio>
+    <audio id="winSound" src="./Win Sound.wav" preload="auto"></audio> -->
 
     <script src="./main.js"></script>
 </body>

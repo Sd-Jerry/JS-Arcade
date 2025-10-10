@@ -1,183 +1,167 @@
-// --- DOM Elements ---
-const wheel = document.querySelector(".wheel");
-const spinBtn = document.querySelector(".spinBtn");
-const arrow = document.querySelector(".arrow");
-const toast = document.getElementById("toast");
-const prizeText = document.getElementById("prizeText");
-const spinAgain = document.getElementById("spinAgain");
-const confettiCanvas = document.getElementById("confettiCanvas");
-const ctx = confettiCanvas.getContext("2d");
-const spinCounterDisplay = document.getElementById("spinCounter");
-const cycleStepCounterDisplay = document.getElementById("cycleStepCounter");
+let wheel = document.querySelector('.wheel');
+let spinBtn = document.querySelector('.spinBtn');
+let popup = document.getElementById('popup');
+let scratchCard = document.getElementById('scratchCard');
+let value = Math.ceil(Math.random() * 3600);
+let congratsPopup;
 
-// --- State Variables ---
-let value = 0;
-let isSpinning = false;
-let confettiFrame;
-let particles = [];
-let cycleStep = 0;
-let globalSpinCount = 0;
-
-// --- Corrected landing angles for 8 segments ---
-// Each segment is 45° apart, so centers are every 45° starting at 22.5°.
-// These values make the wheel stop exactly centered on the correct section.
-const ALLOWED_LANDING_INFO = {
-  "₹200": { segmentIndex: 0, landingAngle: 22.5 },
-  "₹300": { segmentIndex: 1, landingAngle: 67.5 },
-  "₹400": { segmentIndex: 2, landingAngle: 112.5 },
-  "Try Again": { segmentIndex: 7, landingAngle: 337.5 },
-};
-
-// --- Prize Pattern Logic ---
-function getGuaranteedPrize() {
-  let prizeName;
-  globalSpinCount++;
-
-  const random = Math.random();
-  const chance_400 = 0.05; // 5% chance for ₹400
-  const chance_try_again = 0.10; // 10% chance for Try Again
-
-  if (random < chance_400) {
-    prizeName = "₹400"; // Rare ₹400 win
-    cycleStep = 0;
-  } else if (random < (chance_400 + chance_try_again)) {
-    prizeName = "Try Again";
-    cycleStep = 0;
-  } else {
-    // Forced pattern: 7x ₹200 + 1x ₹300
-    if (cycleStep < 7) {
-      prizeName = "₹200";
-      cycleStep++;
-    } else if (cycleStep === 7) {
-      prizeName = "₹300";
-      cycleStep = 0;
-    } else {
-      prizeName = "₹200";
-      cycleStep = 1;
-    }
-  }
-
-  spinCounterDisplay.textContent = globalSpinCount;
-  cycleStepCounterDisplay.textContent = prizeName;
-
-  return prizeName;
+// 🎲 Generate Prize with Weighted Probability
+function getPrize() {
+  const random = Math.random() * 100;
+  if (random < 90) return 200; // 90% chance
+  if (random < 97) return 300; // 7% chance
+  return 400; // 3% chance
 }
 
-// --- Calculate the final rotation ---
-function calculateStopDegree(prizeName) {
-  const prizeInfo = ALLOWED_LANDING_INFO[prizeName];
-
-  if (!prizeInfo) {
-    console.error("Prize not found:", prizeName);
-    return 3600 + ALLOWED_LANDING_INFO["₹200"].landingAngle - (value % 360);
-  }
-
-  const targetLandingAngle = prizeInfo.landingAngle;
-  const fullSpins = 8 * 360; // 8 full rotations
-  const currentRotation = value % 360;
-
-  let requiredRotation = fullSpins + targetLandingAngle - currentRotation;
-
-  // Small optional offset for realism (±2°)
-  const randomOffset = (Math.random() * 4) - 2; // Keep it small
-  requiredRotation += randomOffset;
-
-  return requiredRotation;
-}
-
-// --- Spin Button Handler ---
+// --- SPIN BUTTON CLICK ---
 spinBtn.onclick = function () {
-  if (isSpinning) return;
-  isSpinning = true;
-  spinBtn.disabled = true;
+  spinBtn.style.pointerEvents = "none";
+  wheel.style.transition = "transform 9s cubic-bezier(0.25, 1, 0.5, 1)";
+  wheel.style.transform = "rotate(" + value + "deg)";
+  value += Math.ceil(Math.random() * 3600);
 
-  const guaranteedPrize = getGuaranteedPrize();
-  const requiredRotation = calculateStopDegree(guaranteedPrize);
+  // Select prize logic
+  const prize = getPrize();
 
-  value += requiredRotation;
-  wheel.style.transform = `rotate(${value}deg)`;
-
-  // Wait for spin animation to finish
+  // Show popup after spin ends (9.2s)
   setTimeout(() => {
-    arrow.classList.add("bounce");
-
-    setTimeout(() => {
-      arrow.classList.remove("bounce");
-      showPrize(guaranteedPrize);
-      launchConfetti();
-      isSpinning = false;
-      spinBtn.disabled = false;
-    }, 500);
-  }, 5000);
+    popup.style.display = "flex";
+    initScratchCard(prize);
+  }, 9200);
 };
 
-// --- Show Result Popup ---
-function showPrize(prize) {
-  prizeText.textContent =
-    prize === "Try Again"
-      ? "Oops! Try Again 😅"
-      : `🎉 You Won ${prize} Cashback! 🎊`;
-  toast.classList.add("show");
-  document.getElementById("overlay").classList.add("show");
+// --- SCRATCH CARD INITIALIZATION ---
+function initScratchCard(prize) {
+  // Clean scratch card canvas each time
+  const oldCanvas = document.getElementById("scratchCard");
+  const newCanvas = oldCanvas.cloneNode(true);
+  oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+  scratchCard = newCanvas;
+
+  let ctx = scratchCard.getContext('2d');
+  let w = scratchCard.width;
+  let h = scratchCard.height;
+
+  // Hidden prize text under layer
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#111";
+  ctx.font = "bold 22px Poppins";
+  ctx.fillText(`₹${prize} Cashback`, 60, 85);
+
+  // Grey overlay to scratch off
+  ctx.fillStyle = "#999";
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = "destination-out";
+
+  let isDrawing = false;
+
+  const scratch = (e) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const rect = scratchCard.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.beginPath();
+    ctx.arc(x, y, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Check scratch completion
+    const imageData = ctx.getImageData(0, 0, w, h);
+    let cleared = 0;
+    for (let i = 3; i < imageData.data.length; i += 4) {
+      if (imageData.data[i] === 0) cleared++;
+    }
+    const percent = (cleared / (w * h)) * 100;
+    if (percent > 50) showCongratsPopup(prize);
+  };
+
+  scratchCard.addEventListener("mousedown", () => (isDrawing = true));
+  scratchCard.addEventListener("mouseup", () => (isDrawing = false));
+  scratchCard.addEventListener("mousemove", scratch);
+  scratchCard.addEventListener("touchstart", () => (isDrawing = true));
+  scratchCard.addEventListener("touchend", () => (isDrawing = false));
+  scratchCard.addEventListener("touchmove", scratch);
 }
 
-// --- Spin Again Handler ---
-spinAgain.onclick = () => {
-  toast.classList.remove("show");
-  document.getElementById("overlay").classList.remove("show");
-  stopConfetti();
-};
+// --- SHOW CONGRATS POPUP ---
+function showCongratsPopup(prize) {
+  popup.style.display = "none";
 
-// --- Confetti Animation ---
-function launchConfetti() {
-  particles = [];
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = window.innerHeight;
+  // Create popup wrapper
+  congratsPopup = document.createElement("div");
+  congratsPopup.className = "congrats-popup";
+  congratsPopup.innerHTML = `
+    <canvas id="confettiCanvas"></canvas>
+    <div class="congrats-box">
+      <h2>🎉 Congratulations!</h2>
+      <p>You won ₹${prize} Cashback</p>
+      <button id="popupSpinAgain">SPIN AGAIN</button>
+    </div>
+  `;
+  document.body.appendChild(congratsPopup);
 
+  startConfetti(); // Trigger confetti animation
+
+  document.getElementById("popupSpinAgain").onclick = () => {
+    stopConfetti();
+    congratsPopup.remove();
+    spinBtn.style.pointerEvents = "auto";
+  };
+}
+
+// --- CONFETTI ANIMATION ---
+let confettiCtx, confettiParticles = [], confettiTimer;
+function startConfetti() {
+  const canvas = document.getElementById("confettiCanvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  confettiCtx = canvas.getContext("2d");
+
+  confettiParticles = [];
   for (let i = 0; i < 120; i++) {
-    particles.push({
-      x: Math.random() * confettiCanvas.width,
-      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-      r: Math.random() * 6 + 4,
-      d: Math.random() * 120,
+    confettiParticles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      r: Math.random() * 6 + 2,
+      d: Math.random() * 0.5 + 0.5,
       color: `hsl(${Math.random() * 360}, 100%, 50%)`,
       tilt: Math.random() * 10 - 10,
     });
   }
+  confettiTimer = setInterval(drawConfetti, 16);
+}
 
-  function draw() {
-    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    for (let p of particles) {
-      ctx.beginPath();
-      ctx.lineWidth = p.r;
-      ctx.strokeStyle = p.color;
-      ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-      ctx.stroke();
+function drawConfetti() {
+  const canvas = document.getElementById("confettiCanvas");
+  if (!canvas) return;
+  const ctx = confettiCtx;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettiParticles.forEach((p) => {
+    ctx.beginPath();
+    ctx.lineWidth = p.r;
+    ctx.strokeStyle = p.color;
+    ctx.moveTo(p.x + p.tilt, p.y);
+    ctx.lineTo(p.x, p.y + p.tilt + p.r);
+    ctx.stroke();
+  });
+  updateConfetti();
+}
+
+function updateConfetti() {
+  const canvas = document.getElementById("confettiCanvas");
+  confettiParticles.forEach((p) => {
+    p.y += p.d * 4;
+    p.x += Math.sin(p.tilt);
+    if (p.y > canvas.height) {
+      p.y = -10;
+      p.x = Math.random() * canvas.width;
     }
-    update();
-    confettiFrame = requestAnimationFrame(draw);
-  }
-
-  function update() {
-    for (let p of particles) {
-      p.y += Math.cos(p.d) + 2 + p.r / 2;
-      p.x += Math.sin(p.d);
-      if (p.y > confettiCanvas.height) {
-        p.x = Math.random() * confettiCanvas.width;
-        p.y = -10;
-      }
-    }
-  }
-
-  draw();
-  setTimeout(stopConfetti, 3000);
+  });
 }
 
 function stopConfetti() {
-  if (confettiFrame) {
-    cancelAnimationFrame(confettiFrame);
-    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    confettiFrame = null;
-  }
+  clearInterval(confettiTimer);
+  confettiParticles = [];
 }

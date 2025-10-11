@@ -102,7 +102,10 @@ function showCongratsPopup(prize) {
       <h2>🎉 Congratulations!</h2>
       <p>You won ₹${prize} Cashback</p>
       <button id="popupSpinAgain">SPIN AGAIN</button>
-    </div>
+      <p class="congrats-para">
+      Conditions Apply - This Cashback amount will be deductible / discountable from your total bill amount of SAMRAT TYRE.
+    </p>
+      </div>
   `;
   document.body.appendChild(congratsPopup);
 
@@ -123,7 +126,8 @@ function showCongratsPopup(prize) {
 }
 
 // --- CONFETTI ANIMATION ---
-let confettiCtx, confettiParticles = [], confettiTimer;
+let confettiCtx, confettiParticles = [], confettiAnimationFrame;
+
 function startConfetti() {
   const canvas = document.getElementById("confettiCanvas");
   canvas.width = window.innerWidth;
@@ -131,7 +135,9 @@ function startConfetti() {
   confettiCtx = canvas.getContext("2d");
 
   confettiParticles = [];
-  for (let i = 0; i < 120; i++) {
+  const particleCount = window.innerWidth < 600 ? 60 : 120; // fewer on mobile
+
+  for (let i = 0; i < particleCount; i++) {
     confettiParticles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height - canvas.height,
@@ -141,12 +147,25 @@ function startConfetti() {
       tilt: Math.random() * 10 - 10,
     });
   }
-  confettiTimer = setInterval(drawConfetti, 16);
+
+  // Run confetti for limited duration (e.g. 5 seconds)
+  let startTime = Date.now();
+  function animateConfetti() {
+    drawConfetti();
+    updateConfetti();
+
+    if (Date.now() - startTime < 5000) {
+      confettiAnimationFrame = requestAnimationFrame(animateConfetti);
+    } else {
+      stopConfetti();
+    }
+  }
+  animateConfetti();
 }
 
 function drawConfetti() {
   const canvas = document.getElementById("confettiCanvas");
-  if (!canvas) return;
+  if (!canvas || !confettiCtx) return;
   const ctx = confettiCtx;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   confettiParticles.forEach((p) => {
@@ -157,14 +176,13 @@ function drawConfetti() {
     ctx.lineTo(p.x, p.y + p.tilt + p.r);
     ctx.stroke();
   });
-  updateConfetti();
 }
 
 function updateConfetti() {
   const canvas = document.getElementById("confettiCanvas");
   confettiParticles.forEach((p) => {
-    p.y += p.d * 4;
-    p.x += Math.sin(p.tilt);
+    p.y += p.d * 3; // slightly slower
+    p.x += Math.sin(p.tilt / 2);
     if (p.y > canvas.height) {
       p.y = -10;
       p.x = Math.random() * canvas.width;
@@ -173,6 +191,9 @@ function updateConfetti() {
 }
 
 function stopConfetti() {
-  clearInterval(confettiTimer);
+  cancelAnimationFrame(confettiAnimationFrame);
   confettiParticles = [];
+  const canvas = document.getElementById("confettiCanvas");
+  if (canvas && confettiCtx) confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
 }
+

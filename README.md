@@ -15,4 +15,5 @@ Logic: JavaScript (ES6+)
 Frameworks: React.js (for game structure and state management)     
 
 🎮 Available Games     
-- Spin & Win :  https://sd-jerry.github.io/JS-Arcade/Spin%20and%20Win
+- Spin & Win :  https://sd-jerry.github.io/JS-Arcade/Spin%20and%20Win     
+- Mario Matching Game : https://sd-jerry.github.io/JS-Arcade/Mario%20Matching%20Game     
